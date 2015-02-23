@@ -32,6 +32,17 @@ const struct str2num mapping[] = {
 
 static struct proc_dir_entry *proc_dir, *proc_entry;
 
+int my_mapping(char *str)
+{
+    int i;
+    for (i = 0; i < mapping[i].str != NULL; i ++) {
+        if (strcmp(str, mapping[i].str) == 0) {
+            return mapping[i].num;
+        }
+    }
+    return 0;
+}
+
 static ssize_t mp2_read(struct file *file, char __user *buffer, size_t count, loff_t *data)
 {
     unsigned long copied = 0;
@@ -45,17 +56,6 @@ static ssize_t mp2_read(struct file *file, char __user *buffer, size_t count, lo
 
     kfree(buf);
     return copied;
-}
-
-int my_mapping(char *str)
-{
-    int i;
-    for (i = 0; i < mapping[i].str != NULL; i ++) {
-        if (strcmp(str, mapping[i].str) == 0) {
-            return mapping[i].num;
-        }
-    }
-    return 0;
 }
 
 static ssize_t mp2_write(struct file *file, const char __user *buffer, size_t count, loff_t *data)
