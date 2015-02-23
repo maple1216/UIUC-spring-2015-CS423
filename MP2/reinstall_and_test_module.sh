@@ -1,6 +1,7 @@
 rmmod mp2
 make
 insmod mp2.ko
-echo "R, ddd" > /proc/mp2/status
-dmesg | tail -n 20
-make clean
+./userapp 3 10 2 &
+./userapp 5 15 3 &
+sleep 1
+cat /proc/mp2/status
