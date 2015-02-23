@@ -1,11 +1,12 @@
 #define LINUX
 
 #include <linux/module.h>
-#include <linux/kernel.h>
-#include "mp2_given.h"
+/*#include <linux/kernel.h>*/
+#include "mp1_given.h"
+/*#include "mp2_given.h"*/
 
-#include <linux/init.h>
-#include <linux/fs.h>
+/*#include <linux/init.h>*/
+/*#include <linux/fs.h>*/
 #include <linux/proc_fs.h>
 /*#include <linux/seq_file.h>*/
 
@@ -17,10 +18,25 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("16");
 MODULE_DESCRIPTION("CS-423 MP2");
 
-#define DEBUG          1
-#define FILENAME       "status"
-#define DIRECTORY      "mp2"
-#define TIMEINTERVAL   5000
+#define DEBUG            1
+#define FILENAME         "status"
+#define DIRECTORY        "mp2"
+#define TIMEINTERVAL     5000
+#define REGISTRATION     1
+#define YIELD            2
+#define DEREGISTRATION   3
+
+struct str2num {
+    char *str;
+    int num;
+};
+
+const struct str2num mapping[] = {
+    { "R", 1 },
+    { "Y", 2 },
+    { "D", 3 },
+    { NULL, 0 }
+};
 
 /*typedef struct {*/
     /*struct list_head list;*/
@@ -62,22 +78,51 @@ static ssize_t mp2_read(struct file *file, char __user *buffer, size_t count, lo
     return copied;
 }
 
+int my_mapping(char *str)
+{
+    int i;
+    for (i = 0; i < mapping[i].str != NULL; i ++) {
+        if (strcmp(str, mapping[i].str) == 0) {
+            return mapping[i].num;
+        }
+    }
+    return 0;
+}
+
 static ssize_t mp2_write(struct file *file, const char __user *buffer, size_t count, loff_t *data)
 {
-    return 0;
     /*proc_list *tmp;*/
     /*unsigned long flags;*/
-    /*char *buf;*/
+    char *buf, *opt;
 
     /*// initialize tmp->list*/
     /*tmp = (proc_list *)kmalloc(sizeof(proc_list), GFP_KERNEL);*/
     /*INIT_LIST_HEAD(&(tmp->list));*/
 
     /*// set tmp->pid*/
-    /*buf = (char *)kmalloc(count + 1, GFP_KERNEL);*/
-    /*copy_from_user(buf, buffer, count);*/
-    /*buf[count] = '\0';*/
+    buf = (char *)kmalloc(count + 1, GFP_KERNEL);
+    copy_from_user(buf, buffer, count);
+    buf[count] = '\0';
     /*sscanf(buf, "%u", &tmp->pid);*/
+
+    printk(KERN_INFO "===================\n");
+    opt = strsep(&buf, ",");
+
+    switch (my_mapping(opt)) {
+        case REGISTRATION:
+            printk("REGISTRATION\n");
+            break;
+        case YIELD:
+            printk("YIELD\n");
+            break;
+        case DEREGISTRATION:
+            printk("DEREGISTRATION\n");
+            break;
+        default:
+            printk(KERN_INFO "error in my_mapping(opt)\n");
+    }
+
+    printk(KERN_INFO "===================\n");
 
     /*// initial tmp->cpu_time*/
     /*tmp->cpu_time = 0;*/
@@ -89,7 +134,7 @@ static ssize_t mp2_write(struct file *file, const char __user *buffer, size_t co
 
     /*kfree(buf);*/
 
-    /*return count;*/
+    return count;
 }
 
 static const struct file_operations mp2_fops = {
