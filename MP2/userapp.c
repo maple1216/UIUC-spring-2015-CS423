@@ -54,9 +54,11 @@ int main(int argc, char* argv[])
     if (!status) 
         exit(1);
     
+    yield(getpid());
     // break out the while loop if the time is expired
     while (1) {
         if ((int)(time(NULL) - start_time) > expire) {
+			yield(getpid());
             break;
         }
     }
